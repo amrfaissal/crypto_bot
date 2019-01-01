@@ -21,6 +21,7 @@ defmodule CryptoBot.MixProject do
 
   defp deps do
     [
+      {:jason, "~> 1.1"},
       {:slack, "~> 0.14.0"},
       {:httpotion, "~> 3.1"}
     ]
