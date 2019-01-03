@@ -3,7 +3,6 @@ defmodule CryptoBot.Slack do
 
   use Slack
   require Logger
-  alias CryptoBot.CryptoCompare
 
   def handle_connect(slack, state) do
     Logger.info("#{__MODULE__} connected as #{slack.me.name}")
@@ -21,7 +20,7 @@ defmodule CryptoBot.Slack do
         |> String.split(",")
         |> Enum.map(&String.trim/1)
 
-      with object = CryptoCompare.single_symbol_price(tokens["fsym"], to_symbols),
+      with object = CryptoBot.provider().single_symbol_price(tokens["fsym"], to_symbols),
            {:ok, response} <- Jason.encode(object) do
         send_message("<@#{message.user}> #{response}", message.channel, slack)
       end
