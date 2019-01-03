@@ -6,7 +6,9 @@ defmodule CryptoBot.CryptoCompare do
 
   alias CryptoBot.HTTP
 
-  @spec single_symbol_price(String.t(), [String.t()]) :: map
+  @behaviour CryptoBot.Provider
+
+  @impl true
   def single_symbol_price(from_symbol, to_symbols) do
     with fsym = String.upcase(from_symbol),
          tsyms = encode_symbols(to_symbols),
@@ -15,7 +17,7 @@ defmodule CryptoBot.CryptoCompare do
     end
   end
 
-  @spec multiple_symbols_price([String.t()], [String.t()]) :: map
+  @impl true
   def multiple_symbols_price(from_symbols, to_symbols) do
     with fsyms = from_symbols |> encode_symbols(),
          tsyms = to_symbols |> encode_symbols(),
