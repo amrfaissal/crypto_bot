@@ -4,26 +4,28 @@ symbol
 price
 to_
 of_
+and_
 .
 
 Nonterminals
 
 Statement
-FromSymbol
-ToSymbol
+Symbol
+Symbols
 Price
 .
 
 Rootsymbol Statement.
 
-FromSymbol -> symbol : '$1'.
-ToSymbol -> symbol : '$1'.
+Symbol -> symbol : '$1'.
+Symbols -> Symbol and_ Symbols : ['$1'] ++ '$3'.
+Symbols -> Symbol : ['$1'].
 Price -> price : '$1'.
 
-Statement -> FromSymbol to_ ToSymbol: {fsym, extract_symbol('$1'), tsym, extract_symbol('$3')}.
-
-Statement -> Price of_ FromSymbol: {fsym, extract_symbol('$3'), tsym, <<"EUR">>}.
+Statement -> Symbols to_ Symbols : {fsym, unwrap('$1'), tsym, unwrap('$3')}.
+Statement -> Price of_ Symbols : {fsym, unwrap('$3'), tsym, [<<"EUR">>]}.
+Statement -> Price Symbols : {fsym, unwrap('$2'), tsym, [<<"EUR">>]}.
 
 Erlang code.
 
-extract_symbol({symbol, Value}) -> string:uppercase(Value).
+unwrap(Syms) -> [string:uppercase(Value) || {symbol, Value} <- Syms].

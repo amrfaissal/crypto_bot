@@ -1,8 +1,8 @@
 -module(parser).
 -export([parse/1, parse_and_scan/1, format_error/1]).
--file("src/parser.yrl", 27).
+-file("src/parser.yrl", 29).
 
-extract_symbol({symbol, Value}) -> string:uppercase(Value).
+unwrap(Syms) -> [string:uppercase(Value) || {symbol, Value} <- Syms].
 
 -file("/Users/faissal/.evm/erlang_versions/otp_src_21.1/lib/erlang/lib/parsetools-2.1.8/include/yeccpre.hrl", 0).
 %%
@@ -187,8 +187,8 @@ yeccpars2(0=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_2(S, Cat, Ss, Stack, T, Ts, Tzr);
 %% yeccpars2(3=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_3(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(4=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_4(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(4=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_4(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(5=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_5(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(6=S, Cat, Ss, Stack, T, Ts, Tzr) ->
@@ -197,103 +197,160 @@ yeccpars2(6=S, Cat, Ss, Stack, T, Ts, Tzr) ->
 %%  yeccpars2_7(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(8=S, Cat, Ss, Stack, T, Ts, Tzr) ->
  yeccpars2_8(S, Cat, Ss, Stack, T, Ts, Tzr);
-yeccpars2(9=S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_9(S, Cat, Ss, Stack, T, Ts, Tzr);
-%% yeccpars2(10=S, Cat, Ss, Stack, T, Ts, Tzr) ->
-%%  yeccpars2_10(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(9=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_9(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(10=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_8(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(11=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_11(S, Cat, Ss, Stack, T, Ts, Tzr);
+yeccpars2(12=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_8(S, Cat, Ss, Stack, T, Ts, Tzr);
+%% yeccpars2(13=S, Cat, Ss, Stack, T, Ts, Tzr) ->
+%%  yeccpars2_13(S, Cat, Ss, Stack, T, Ts, Tzr);
 yeccpars2(Other, _, _, _, _, _, _) ->
  erlang:error({yecc_bug,"1.4",{missing_state_in_action_table, Other}}).
 
 -dialyzer({nowarn_function, yeccpars2_0/7}).
 yeccpars2_0(S, price, Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 4, Ss, Stack, T, Ts, Tzr);
-yeccpars2_0(S, symbol, Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 5, Ss, Stack, T, Ts, Tzr);
+yeccpars2_0(S, symbol, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 6, Ss, Stack, T, Ts, Tzr);
 yeccpars2_0(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
 -dialyzer({nowarn_function, yeccpars2_1/7}).
-yeccpars2_1(_S, '$end', _Ss, Stack, _T, _Ts, _Tzr) ->
- {ok, hd(Stack)};
+yeccpars2_1(S, to_, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 12, Ss, Stack, T, Ts, Tzr);
 yeccpars2_1(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
--dialyzer({nowarn_function, yeccpars2_2/7}).
-yeccpars2_2(S, of_, Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 9, Ss, Stack, T, Ts, Tzr);
-yeccpars2_2(_, _, _, _, T, _, _) ->
- yeccerror(T).
+yeccpars2_2(S, and_, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 10, Ss, Stack, T, Ts, Tzr);
+yeccpars2_2(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ NewStack = yeccpars2_2_(Stack),
+ 'yeccgoto_\'Symbols\''(hd(Ss), Cat, Ss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, yeccpars2_3/7}).
-yeccpars2_3(S, to_, Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 6, Ss, Stack, T, Ts, Tzr);
+yeccpars2_3(_S, '$end', _Ss, Stack, _T, _Ts, _Tzr) ->
+ {ok, hd(Stack)};
 yeccpars2_3(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
-yeccpars2_4(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- 'yeccgoto_\'Price\''(hd(Ss), Cat, Ss, Stack, T, Ts, Tzr).
-
-yeccpars2_5(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- 'yeccgoto_\'FromSymbol\''(hd(Ss), Cat, Ss, Stack, T, Ts, Tzr).
-
--dialyzer({nowarn_function, yeccpars2_6/7}).
-yeccpars2_6(S, symbol, Ss, Stack, T, Ts, Tzr) ->
+-dialyzer({nowarn_function, yeccpars2_4/7}).
+yeccpars2_4(S, of_, Ss, Stack, T, Ts, Tzr) ->
  yeccpars1(S, 8, Ss, Stack, T, Ts, Tzr);
-yeccpars2_6(_, _, _, _, T, _, _) ->
+yeccpars2_4(S, symbol, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 6, Ss, Stack, T, Ts, Tzr);
+yeccpars2_4(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
+yeccpars2_5(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ 'yeccgoto_\'Price\''(hd(Ss), Cat, Ss, Stack, T, Ts, Tzr).
+
+yeccpars2_6(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ 'yeccgoto_\'Symbol\''(hd(Ss), Cat, Ss, Stack, T, Ts, Tzr).
+
 yeccpars2_7(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- [_,_|Nss] = Ss,
+ [_|Nss] = Ss,
  NewStack = yeccpars2_7_(Stack),
  'yeccgoto_\'Statement\''(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
-yeccpars2_8(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- 'yeccgoto_\'ToSymbol\''(hd(Ss), Cat, Ss, Stack, T, Ts, Tzr).
-
--dialyzer({nowarn_function, yeccpars2_9/7}).
-yeccpars2_9(S, symbol, Ss, Stack, T, Ts, Tzr) ->
- yeccpars1(S, 5, Ss, Stack, T, Ts, Tzr);
-yeccpars2_9(_, _, _, _, T, _, _) ->
+-dialyzer({nowarn_function, yeccpars2_8/7}).
+yeccpars2_8(S, symbol, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars1(S, 6, Ss, Stack, T, Ts, Tzr);
+yeccpars2_8(_, _, _, _, T, _, _) ->
  yeccerror(T).
 
-yeccpars2_10(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+yeccpars2_9(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
  [_,_|Nss] = Ss,
- NewStack = yeccpars2_10_(Stack),
+ NewStack = yeccpars2_9_(Stack),
  'yeccgoto_\'Statement\''(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
--dialyzer({nowarn_function, 'yeccgoto_\'FromSymbol\''/7}).
-'yeccgoto_\'FromSymbol\''(0, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_3(3, Cat, Ss, Stack, T, Ts, Tzr);
-'yeccgoto_\'FromSymbol\''(9=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_10(_S, Cat, Ss, Stack, T, Ts, Tzr).
+%% yeccpars2_10: see yeccpars2_8
+
+yeccpars2_11(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_,_|Nss] = Ss,
+ NewStack = yeccpars2_11_(Stack),
+ 'yeccgoto_\'Symbols\''(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
+
+%% yeccpars2_12: see yeccpars2_8
+
+yeccpars2_13(_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ [_,_|Nss] = Ss,
+ NewStack = yeccpars2_13_(Stack),
+ 'yeccgoto_\'Statement\''(hd(Nss), Cat, Nss, NewStack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, 'yeccgoto_\'Price\''/7}).
 'yeccgoto_\'Price\''(0, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr).
+ yeccpars2_4(4, Cat, Ss, Stack, T, Ts, Tzr).
 
 -dialyzer({nowarn_function, 'yeccgoto_\'Statement\''/7}).
 'yeccgoto_\'Statement\''(0, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_1(1, Cat, Ss, Stack, T, Ts, Tzr).
+ yeccpars2_3(3, Cat, Ss, Stack, T, Ts, Tzr).
 
--dialyzer({nowarn_function, 'yeccgoto_\'ToSymbol\''/7}).
-'yeccgoto_\'ToSymbol\''(6=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
- yeccpars2_7(_S, Cat, Ss, Stack, T, Ts, Tzr).
+-dialyzer({nowarn_function, 'yeccgoto_\'Symbol\''/7}).
+'yeccgoto_\'Symbol\''(0, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbol\''(4, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbol\''(8, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbol\''(10, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbol\''(12, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_2(2, Cat, Ss, Stack, T, Ts, Tzr).
+
+-dialyzer({nowarn_function, 'yeccgoto_\'Symbols\''/7}).
+'yeccgoto_\'Symbols\''(0, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_1(1, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbols\''(4=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_7(_S, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbols\''(8=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_9(_S, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbols\''(10=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_11(_S, Cat, Ss, Stack, T, Ts, Tzr);
+'yeccgoto_\'Symbols\''(12=_S, Cat, Ss, Stack, T, Ts, Tzr) ->
+ yeccpars2_13(_S, Cat, Ss, Stack, T, Ts, Tzr).
+
+-compile({inline,yeccpars2_2_/1}).
+-file("src/parser.yrl", 18).
+yeccpars2_2_(__Stack0) ->
+ [__1 | __Stack] = __Stack0,
+ [begin
+   [ __1 ]
+  end | __Stack].
 
 -compile({inline,yeccpars2_7_/1}).
--file("src/parser.yrl", 19).
+-file("src/parser.yrl", 23).
 yeccpars2_7_(__Stack0) ->
- [__3,__2,__1 | __Stack] = __Stack0,
+ [__2,__1 | __Stack] = __Stack0,
  [begin
-   { fsym , extract_symbol ( __1 ) , tsym , extract_symbol ( __3 ) }
+   { fsym , unwrap ( __2 ) , tsym , [ << "EUR" >> ] }
   end | __Stack].
 
--compile({inline,yeccpars2_10_/1}).
+-compile({inline,yeccpars2_9_/1}).
+-file("src/parser.yrl", 22).
+yeccpars2_9_(__Stack0) ->
+ [__3,__2,__1 | __Stack] = __Stack0,
+ [begin
+   { fsym , unwrap ( __3 ) , tsym , [ << "EUR" >> ] }
+  end | __Stack].
+
+-compile({inline,yeccpars2_11_/1}).
+-file("src/parser.yrl", 17).
+yeccpars2_11_(__Stack0) ->
+ [__3,__2,__1 | __Stack] = __Stack0,
+ [begin
+   [ __1 ] ++ __3
+  end | __Stack].
+
+-compile({inline,yeccpars2_13_/1}).
 -file("src/parser.yrl", 21).
-yeccpars2_10_(__Stack0) ->
+yeccpars2_13_(__Stack0) ->
  [__3,__2,__1 | __Stack] = __Stack0,
  [begin
-   { fsym , extract_symbol ( __3 ) , tsym , << "EUR" >> }
+   { fsym , unwrap ( __1 ) , tsym , unwrap ( __3 ) }
   end | __Stack].
 
 
--file("src/parser.yrl", 30).
+-file("src/parser.yrl", 32).
