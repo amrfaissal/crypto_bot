@@ -2,6 +2,7 @@ defmodule CryptoBot.Slack do
   @moduledoc false
 
   use Slack
+  alias CryptoBot.Tokenizer
   require Logger
 
   def handle_connect(slack, state) do
@@ -10,22 +11,12 @@ defmodule CryptoBot.Slack do
   end
 
   def handle_event(message = %{type: "message"}, slack, state) do
-    regex = ~r/(?<fsym>[\w+,\s]*)(\sin\s)(?<tsyms>[\w+,\s]*)/
-    tokens = regex |> Regex.named_captures(message.text)
-
-    if tokens do
-      to_symbols =
-        tokens
-        |> Map.get("tsyms")
-        |> String.split(",")
-        |> Enum.map(&String.trim/1)
-
-      with object = CryptoBot.provider().single_symbol_price(tokens["fsym"], to_symbols),
-           {:ok, response} <- Jason.encode(object) do
-        send_message("<@#{message.user}> #{response}", message.channel, slack)
-      end
+    with {:ok, tokens} <- message.text |> strip() |> Tokenizer.tokenize(),
+         {:ok, response} <- tokens |> handle_tokens() do
+      send_message("<@#{message.user}> #{response}", message.channel, slack)
     else
-      send_message("<@#{message.user}> I'm sorry, I don't understand!", message.channel, slack)
+      _ ->
+        send_message("<@#{message.user}> I'm sorry, I don't understand!", message.channel, slack)
     end
 
     {:ok, state}
@@ -34,4 +25,25 @@ defmodule CryptoBot.Slack do
   def handle_event(_, _, state), do: {:ok, state}
 
   def handle_info(_, _, state), do: {:ok, state}
+
+  #
+  # Helpers
+  #
+
+  defp handle_tokens({:fsym, list1, :tsym, list2}) do
+    object =
+      if length(list1) == 1 && length(list2) > 1 do
+        CryptoBot.provider().single_symbol_price(list1, list2)
+      else
+        CryptoBot.provider().multiple_symbols_price(list1, list2)
+      end
+
+    Jason.encode(object)
+  end
+
+  defp strip(text) do
+    text
+    |> String.replace(~r/(<@[a-zA-Z0-9]*>\s*)/, "")
+    |> HtmlEntities.decode()
+  end
 end

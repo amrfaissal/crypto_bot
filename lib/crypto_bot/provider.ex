@@ -8,4 +8,5 @@ defmodule CryptoBot.Provider do
 
   @callback single_symbol_price(symbol, symbols) :: map
   @callback multiple_symbols_price(symbols, symbols) :: map
+  @callback encode(symbols) :: String.t()
 end

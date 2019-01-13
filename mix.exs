@@ -23,7 +23,8 @@ defmodule CryptoBot.MixProject do
     [
       {:jason, "~> 1.1"},
       {:slack, "~> 0.14.0"},
-      {:httpotion, "~> 3.1"}
+      {:httpotion, "~> 3.1"},
+      {:html_entities, "~> 0.4"}
     ]
   end
 

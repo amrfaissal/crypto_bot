@@ -10,8 +10,8 @@ defmodule CryptoBot.CryptoCompare do
 
   @impl true
   def single_symbol_price(from_symbol, to_symbols) do
-    with fsym = String.upcase(from_symbol),
-         tsyms = encode_symbols(to_symbols),
+    with fsym = from_symbol |> encode(),
+         tsyms = to_symbols |> encode(),
          {:ok, 200, response} <- HTTP.get("price?fsym=#{fsym}&tsyms=#{tsyms}") do
       response
     end
@@ -19,14 +19,15 @@ defmodule CryptoBot.CryptoCompare do
 
   @impl true
   def multiple_symbols_price(from_symbols, to_symbols) do
-    with fsyms = from_symbols |> encode_symbols(),
-         tsyms = to_symbols |> encode_symbols(),
+    with fsyms = from_symbols |> encode(),
+         tsyms = to_symbols |> encode(),
          {:ok, 200, response} <- HTTP.get("pricemulti?fsyms=#{fsyms}&tsyms=#{tsyms}") do
       response
     end
   end
 
-  defp encode_symbols(symbols) do
+  @impl true
+  def encode(symbols) do
     symbols |> Enum.map(&String.upcase/1) |> Enum.join(",")
   end
 end
