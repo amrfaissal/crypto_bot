@@ -2,7 +2,7 @@ defmodule CryptoBot.Slack do
   @moduledoc false
 
   use Slack
-  alias CryptoBot.Tokenizer
+  alias CryptoBot.{Helpers, Tokenizer}
   require Logger
 
   def handle_connect(slack, state) do
@@ -11,13 +11,22 @@ defmodule CryptoBot.Slack do
   end
 
   def handle_event(message = %{type: "message"}, slack, state) do
-    with {:ok, tokens} <- message.text |> strip() |> Tokenizer.tokenize(),
-         {:ok, response} <- tokens |> handle_tokens() do
-      send_message("<@#{message.user}> #{response}", message.channel, slack)
-    else
-      _ ->
-        send_message("<@#{message.user}> I'm sorry, I don't understand!", message.channel, slack)
-    end
+    response_message =
+      with {:ok, tokens} <- message.text |> strip() |> Tokenizer.tokenize(),
+           {:ok, response} <- tokens |> handle_tokens() do
+        """
+        <@#{message.user}> :arrow_down: Here you go :arrow_down:
+
+        #{Helpers.to_quote(response)}
+        """
+      else
+        _ ->
+          """
+          <@#{message.user}> I'm sorry, I don't understand! :man-shrugging:
+          """
+      end
+
+    send_message(response_message, message.channel, slack)
 
     {:ok, state}
   end
@@ -31,14 +40,14 @@ defmodule CryptoBot.Slack do
   #
 
   defp handle_tokens({:fsym, list1, :tsym, list2}) do
-    object =
+    response =
       if length(list1) == 1 && length(list2) > 1 do
         CryptoBot.provider().single_symbol_price(list1, list2)
       else
         CryptoBot.provider().multiple_symbols_price(list1, list2)
       end
 
-    Jason.encode(object)
+    {:ok, response}
   end
 
   defp strip(text) do
