@@ -22,3 +22,6 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 crypto_bot-*.tar
 
+# Ignore generated *.erl modules
+src/parser.erl
+src/tokenizer.erl
